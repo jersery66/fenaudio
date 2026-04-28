@@ -1,0 +1,6 @@
+@echo off
+echo 重启 fenaudio 服务...
+call stop.bat
+echo.
+echo 启动服务...
+call start.bat
