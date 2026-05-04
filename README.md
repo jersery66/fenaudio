@@ -4,7 +4,6 @@
 
 小芬会根据你的心情、天气、时段和听歌历史，为你推荐合适的音乐，并像电台主持一样为你讲解歌曲背后的故事，带给你有温度的聆听体验。
 
-![fenaudio UI](https://via.placeholder.com/800x450?text=fenaudio+UI+Preview) <!-- 替换为实际截图 -->
 
 ## ✨ 核心特性
 

@@ -15,6 +15,134 @@ class FenaudioApp {
     await this.loadTracks();
     this.loadChatHistory();
     this.loadSearchHistory();
+    this.initLoginStatus();
+  }
+
+  async initLoginStatus() {
+    try {
+      const res = await fetch('/api/auth/status');
+      const data = await res.json();
+      this.updateLoginUI(data);
+    } catch (e) {
+      console.error('Login status check error:', e);
+    }
+  }
+
+  updateLoginUI(status) {
+    const container = document.getElementById('sidebarLogin');
+    if (!container) return;
+
+    if (status.loggedIn) {
+      container.innerHTML = `
+        <div class="login-user">
+          ${status.avatarUrl ? `<img class="login-avatar" src="${status.avatarUrl}?param=40y40" alt="">` : '<div class="login-avatar-placeholder">👤</div>'}
+          <div class="login-info">
+            <div class="login-nickname">${status.nickname || '已登录'}</div>
+            <div class="login-vip">${status.vipType > 0 ? 'VIP' : '普通用户'}</div>
+          </div>
+          <button class="login-logout-btn" onclick="app.logout()" title="退出登录">退出</button>
+        </div>
+      `;
+    } else {
+      container.innerHTML = `
+        <button class="login-btn" onclick="app.showLoginModal()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>登录网易云</span>
+        </button>
+      `;
+    }
+  }
+
+  async showLoginModal() {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.id = 'loginModal';
+    overlay.innerHTML = `
+      <div class="modal login-modal">
+        <h3>扫码登录网易云音乐</h3>
+        <div class="qr-container" id="qrContainer">
+          <div class="qr-loading">正在生成二维码...</div>
+        </div>
+        <p class="qr-tip" id="qrTip">打开网易云音乐 App 扫描二维码</p>
+        <div class="actions">
+          <button class="cancel" onclick="document.getElementById('loginModal').remove()">取消</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) overlay.remove();
+    });
+
+    try {
+      const keyRes = await fetch('/api/auth/qr/key');
+      const keyData = await keyRes.json();
+      const unikey = keyData.data?.unikey;
+      if (!unikey) {
+        document.getElementById('qrContainer').innerHTML = '<div class="qr-error">获取二维码失败</div>';
+        return;
+      }
+
+      const createRes = await fetch(`/api/auth/qr/create?key=${unikey}&qrimg=true`);
+      const createData = await createRes.json();
+      const qrimg = createData.data?.qrimg;
+
+      if (qrimg) {
+        document.getElementById('qrContainer').innerHTML = `<img class="qr-image" src="${qrimg}" alt="QR Code">`;
+      } else {
+        const qrurl = createData.data?.qrurl || '';
+        document.getElementById('qrContainer').innerHTML = `<div class="qr-error">二维码生成失败<br><small>${qrurl}</small></div>`;
+        return;
+      }
+
+      this.pollQrStatus(unikey);
+    } catch (e) {
+      document.getElementById('qrContainer').innerHTML = `<div class="qr-error">请求失败：${e.message}</div>`;
+    }
+  }
+
+  pollQrStatus(unikey) {
+    const poll = setInterval(async () => {
+      const modal = document.getElementById('loginModal');
+      if (!modal) {
+        clearInterval(poll);
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/auth/qr/check?key=${unikey}`);
+        const data = await res.json();
+
+        const tip = document.getElementById('qrTip');
+        if (data.code === 801) {
+          if (tip) tip.textContent = '等待扫码...';
+        } else if (data.code === 802) {
+          if (tip) tip.textContent = '已扫码，等待确认...';
+        } else if (data.code === 803) {
+          clearInterval(poll);
+          if (tip) tip.textContent = '登录成功！';
+          setTimeout(() => {
+            modal.remove();
+            this.initLoginStatus();
+          }, 1000);
+        } else if (data.code === 800) {
+          clearInterval(poll);
+          if (tip) tip.textContent = '二维码已过期，请重新打开';
+          document.getElementById('qrContainer').innerHTML = '<div class="qr-error">二维码已过期</div>';
+        }
+      } catch (e) {
+        clearInterval(poll);
+      }
+    }, 2000);
+  }
+
+  async logout() {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      this.updateLoginUI({ loggedIn: false });
+    } catch (e) {
+      console.error('Logout error:', e);
+    }
   }
 
   bindEvents() {
@@ -409,8 +537,8 @@ class FenaudioApp {
 
       let html = '<div class="playlist-header"><h3>个性推荐</h3></div>';
 
-      if (personalizedRes.status === 'fulfilled') {
-        const data = personalizedRes.value;
+      if (personalizedRes.status === 'fulfilled' && personalizedRes.value.ok) {
+        const data = await personalizedRes.value.json();
         const playlists = data.result || [];
         if (playlists.length > 0) {
           html += '<div class="playlist-header"><h3>推荐歌单</h3></div>';
@@ -428,8 +556,8 @@ class FenaudioApp {
         }
       }
 
-      if (fmRes.status === 'fulfilled') {
-        const fmData = fmRes.value;
+      if (fmRes.status === 'fulfilled' && fmRes.value.ok) {
+        const fmData = await fmRes.value.json();
         const fmSongs = fmData.data || [];
         if (fmSongs.length > 0) {
           html += '<div class="playlist-header" style="margin-top:12px"><h3>私人FM</h3></div>';

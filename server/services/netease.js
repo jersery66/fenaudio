@@ -5,9 +5,80 @@ class NeteaseService {
   constructor() {
     this.baseUrl = config.NETEASE_API_BASE;
     this.cookie = config.NETEASE_COOKIE || '';
+    this._loadedFromDb = false;
+  }
+
+  _ensureCookieFromDb() {
+    if (this._loadedFromDb) return;
+    this._loadedFromDb = true;
+    try {
+      const { stmts } = require('../db/database');
+      const row = stmts.getPreference.get('netease_cookie');
+      if (row && row.value) {
+        this.cookie = row.value;
+        console.log('Netease: cookie loaded from database');
+      }
+    } catch (e) {
+      console.error('Netease: failed to load cookie from db:', e.message);
+    }
+  }
+
+  updateCookie(cookie) {
+    this.cookie = cookie;
+    try {
+      const { stmts } = require('../db/database');
+      stmts.setPreference.run('netease_cookie', cookie, cookie);
+      console.log('Netease: cookie saved to database');
+    } catch (e) {
+      console.error('Netease: failed to save cookie:', e.message);
+    }
+  }
+
+  async refreshCookie() {
+    if (!this.cookie) return false;
+    try {
+      const res = await fetch(`${this.baseUrl}/login/refresh`, {
+        headers: { Cookie: this.cookie },
+      });
+      const data = await res.json();
+      if (data.code === 200 && data.cookie) {
+        this.updateCookie(data.cookie);
+        console.log('Netease: cookie refreshed');
+        return true;
+      }
+      console.log('Netease: cookie refresh returned code:', data.code);
+      return false;
+    } catch (e) {
+      console.error('Netease: cookie refresh error:', e.message);
+      return false;
+    }
+  }
+
+  async getLoginStatus() {
+    this._ensureCookieFromDb();
+    if (!this.cookie) return { loggedIn: false };
+    try {
+      const res = await fetch(`${this.baseUrl}/login/status`, {
+        headers: { Cookie: this.cookie },
+      });
+      const data = await res.json();
+      if (data.code === 200 && data.data?.account) {
+        return {
+          loggedIn: true,
+          nickname: data.data.profile?.nickname || '',
+          avatarUrl: data.data.profile?.avatarUrl || '',
+          userId: data.data.account.id,
+          vipType: data.data.account.vipType,
+        };
+      }
+      return { loggedIn: false };
+    } catch (e) {
+      return { loggedIn: false };
+    }
   }
 
   async request(endpoint, params = {}) {
+    this._ensureCookieFromDb();
     const url = new URL(endpoint, this.baseUrl);
     Object.entries(params).forEach(([k, v]) => {
       if (v !== undefined && v !== null) url.searchParams.set(k, v);

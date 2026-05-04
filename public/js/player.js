@@ -740,11 +740,55 @@ class Player {
     }
 
     const song = this.radioQueue[this.radioCurrentIndex];
+    this.generateRadioComment(song);
+
     const played = await this.playRadioSong(song);
 
     if (!played && this.radioMode) {
       setTimeout(() => this.radioNext(), 1000);
     }
+  }
+
+  async generateRadioComment(song) {
+    try {
+      const res = await fetch('/api/chat/radio/comment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ song }),
+      });
+      const data = await res.json();
+      if (data.comment) {
+        this.addRadioMessage(data.comment);
+      }
+      if (data.ttsUrl) {
+        this.playTtsOverMusic(data.ttsUrl);
+      } else {
+        this.pollRadioComment();
+      }
+    } catch (e) {
+      console.error('Radio comment error:', e);
+    }
+  }
+
+  pollRadioComment() {
+    let attempts = 0;
+    const poll = setInterval(async () => {
+      attempts++;
+      if (attempts > 10 || !this.radioMode) {
+        clearInterval(poll);
+        return;
+      }
+      try {
+        const res = await fetch('/api/chat/radio/pending');
+        const pending = await res.json();
+        if (pending.comment?.ttsUrl) {
+          clearInterval(poll);
+          this.playTtsOverMusic(pending.comment.ttsUrl);
+        }
+      } catch (e) {
+        clearInterval(poll);
+      }
+    }, 2000);
   }
 
   addRadioMessage(text) {
