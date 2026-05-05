@@ -1,145 +1,257 @@
-# fenaudio - 个性化 AI 电台
+# fenaudio - 你的私人 AI 电台
 
-fenaudio 是一款基于个人音乐品味的智能音乐电台。AI DJ **小芬** 会根据你的听歌历史、当前天气和时段，为你推荐音乐、生成电台播报，并用语音讲述歌曲背后的故事。
+你有没有过这样的时刻：外面下着雨，你打开音乐 App，却不知道该听什么。翻了半天推荐列表，都不是你想听的。
 
-## 功能
+fenaudio 就是为了解决这个问题而生的。
 
-**AI DJ**
-- 基于通义千问大模型的智能对话，支持自然语言点歌和心情推荐
-- 电台模式：自动编排歌单，歌曲之间穿插 AI 语音串场
-- CosyVoice 语音合成，让 DJ 拥有自然的声线
+它不是一个普通的音乐播放器。它是一个有温度的 AI 电台，有一个叫 **小芬** 的 DJ。小芬会看今天的天气，看你最近在听什么，看现在是深夜还是午后，然后为你挑一首刚刚好的歌。如果你愿意，她还会像真正的电台主持一样，在歌与歌之间用语音跟你聊几句。
 
-**音乐**
-- 网易云音乐全量搜索、歌单导入、私人 FM、每日推荐
-- 歌词同步显示，音频频谱可视化
-- 支持多种音质（exhigh / higher / standard 自动降级）
+比如在一个下着小雨的傍晚，你打开 fenaudio，小芬可能会说：
 
-**界面**
-- 深色主题，Canvas 粒子背景随音乐节奏变化
-- 悬浮窗模式，可拖拽到屏幕边缘
-- 点击涟漪动效
+> "外面下着雨呢，这个时间点特别适合听一首安静的歌。接下来这首是陈绮贞的《旅行的意义》，她的声音总能让人心情平静下来。"
 
-## 技术栈
+然后音乐响起，歌词同步滚动，背景的粒子随着节奏轻轻跳动。
 
-| 层级 | 技术 |
-|------|------|
-| 前端 | Vanilla JS / CSS3 / HTML5 / Canvas |
-| 后端 | Node.js / Express |
-| 数据库 | SQLite (better-sqlite3, WAL 模式) |
-| AI | 阿里云 DashScope / 通义千问 |
-| TTS | 阿里云 CosyVoice |
-| 音乐数据 | NeteaseCloudMusicApi |
+这就是 fenaudio 想要带给你的体验。
 
-## 快速开始
+---
 
-### 1. 克隆并安装依赖
+## 它能做什么
+
+### 和 AI DJ 聊天
+
+页面右侧有一个聊天窗口，你可以像和朋友发消息一样告诉小芬你想听什么。不需要精确的歌名，用日常的语言就行：
+
+- "今天加班好累，来点轻松的"
+- "推荐几首适合跑步的歌"
+- "有没有那种一个人待着时听的民谣"
+- "来首周杰伦的快歌"
+
+小芬会结合当前的天气、时间和你的听歌习惯来回复你，并且直接在消息里嵌入可点击的歌曲卡片，点一下就能播放。
+
+### 电台模式
+
+点击聊天区的 **"电台"** 按钮，就进入电台模式了。
+
+这时候小芬会接管你的播放列表。她会从网易云的私人 FM、每日推荐和你常听的歌手里挑出一批歌，然后像真正的电台一样，在每首歌开始前用语音说一段串场词。音乐音量会自动降低，让 DJ 的声音清晰可闻，说完之后音乐再恢复到正常音量。
+
+你什么都不用做，只要听着就好。就像深夜打开收音机，有一个温柔的声音在陪你。
+
+### 语音播报
+
+如果你开启了聊天窗口里的 **"语音"** 按钮，小芬不只是文字回复你，还会把回复内容用语音读出来。用的是阿里云的 CosyVoice 技术，声音很自然，不会像机器人。
+
+这个功能在电台模式下特别有用 —— 你可以在做家务、做饭的时候开着 fenaudio，完全不用看屏幕，听就行了。
+
+### 网易云音乐整合
+
+fenaudio 的音乐数据来自网易云音乐，所以你可以：
+
+- **搜索**：在侧边栏搜索框输入歌名、歌手、专辑，结果实时显示
+- **导入歌单**：把你网易云收藏的歌单导入进来，一键导入整个歌单的所有歌曲
+- **私人 FM 和每日推荐**：登录网易云后，推荐页面会显示个性化的歌单推荐、私人 FM 和每日推荐歌曲
+- **播放历史**：你听过什么歌都有记录，随时可以回听
+- **歌词同步**：播放时歌词面板会自动滚动，当前唱到哪一行高亮显示
+
+### 视觉体验
+
+fenaudio 的界面是深色主题，背景有动态粒子效果。这些粒子不是固定的 —— 它们会随着音乐的节奏变化，音乐激烈时粒子跳动更快，安静时粒子缓缓飘动。播放器中间有一个模拟黑胶唱片的动画，播放时会旋转。底部还有一个音频频谱可视化器，用彩色的柱状图实时显示音频频率。
+
+如果你想一边工作一边听歌，可以点击侧边栏右上角的图标切换到 **悬浮窗模式**。这时候主界面会收起来，屏幕角落出现一个迷你播放器，显示封面、歌名和基本控制按钮。你可以把它拖到屏幕的任何位置。
+
+---
+
+## 怎么装
+
+### 前提条件
+
+你需要安装 [Node.js](https://nodejs.org/)（建议 16 或更高版本）。打开终端输入 `node -v` 看看有没有装好。
+
+你还需要两个 API Key：
+
+1. **阿里云 DashScope API Key** —— 这是 AI 对话和语音合成共用的密钥。去 [DashScope 控制台](https://dashscope.console.aliyun.com/) 注册开通，免费额度够个人使用。
+2. **OpenWeather API Key** —— 用于获取天气信息，让小芬知道今天天气如何。去 [OpenWeather](https://openweathermap.org/api) 注册，免费版够用。
+
+### 第一步：下载代码
 
 ```bash
 git clone https://github.com/jersery66/fenaudio.git
 cd fenaudio
-npm install
-cd NeteaseCloudMusicApiGitee && npm install && cd ..
 ```
 
-### 2. 配置环境变量
+### 第二步：安装依赖
 
-复制 `.env.example` 为 `.env`，填入 API 密钥：
+项目有两个部分需要分别安装依赖：
+
+```bash
+# 安装 fenaudio 主项目的依赖
+npm install
+
+# 安装网易云音乐 API 的依赖
+cd NeteaseCloudMusicApiGitee
+npm install
+cd ..
+```
+
+### 第三步：配置密钥
+
+项目根目录下有一个 `.env.example` 文件，把它复制一份命名为 `.env`：
 
 ```bash
 cp .env.example .env
 ```
 
-必须配置的项：
-- `AI_API_KEY` — 阿里云 DashScope API Key（AI 对话 + TTS 共用）
-- `WEATHER_API_KEY` — OpenWeather API Key（天气感知推荐）
+然后用文本编辑器打开 `.env`，填入你的密钥：
 
-可选配置：
-- `WEATHER_CITY` — 城市名，默认 `nanchang`
+```env
+# 阿里云 DashScope API Key（必填）
+# AI 对话和语音合成都用这个 Key
+AI_API_KEY=你的DashScope密钥
+DASHSCOPE_API_KEY=你的DashScope密钥
 
-### 3. 启动
+# OpenWeather 天气 API Key（必填，用于天气感知推荐）
+WEATHER_API_KEY=你的OpenWeather密钥
 
-```bash
-# Windows 一键启动（同时启动 NeteaseCloudMusicApi 和 fenaudio）
-start.bat
-
-# 或手动启动
-cd NeteaseCloudMusicApiGitee && node app.js   # 终端 1: 网易云 API (端口 3000)
-npm run dev                                     # 终端 2: fenaudio (端口 3200)
+# 你在哪个城市（可选，默认南昌）
+WEATHER_CITY=你的城市名
 ```
 
-访问 http://localhost:3200
+其他配置项保持默认就好，不用改。
 
-### 4. 登录网易云
+### 第四步：启动
 
-启动后在页面侧边栏底部点击 **"登录网易云"**，用网易云音乐 App 扫码登录。
+**最简单的方式：** 双击根目录下的 `start.bat`，它会同时启动两个服务。
 
-登录后自动获得：
-- VIP 歌曲完整播放（需账号有 VIP）
-- 个性推荐、私人 FM、每日推荐
-- Cookie 自动刷新，无需手动维护
+**手动启动：** 需要开两个终端窗口：
 
-其他管理命令：`stop.bat`（停止）/ `restart.bat`（重启）
+```bash
+# 终端 1 —— 启动网易云音乐 API 服务
+cd NeteaseCloudMusicApiGitee
+node app.js
+# 看到 "server running @ http://localhost:3000" 就说明成功了
 
-## 使用
+# 终端 2 —— 启动 fenaudio 主服务
+cd fenaudio
+npm run dev
+# 看到 "fenaudio 个性化AI电台已启动" 就说明成功了
+```
 
-- **聊天点歌**：在聊天窗口告诉小芬你的需求，如"推荐适合雨天的歌"、"来点轻松的爵士"
-- **电台模式**：点击聊天区的"电台"按钮，AI 自动编排歌单并语音播报
-- **语音模式**：开启"语音"按钮，小芬会在切歌时用语音介绍下一首歌
-- **悬浮窗**：点击侧边栏右上角图标，切换到迷你播放器模式
+两个服务都要在运行状态才能正常使用。`start.bat` 会帮你处理这件事。
+
+启动完成后，打开浏览器访问 **http://localhost:3200**。
+
+### 第五步：登录网易云
+
+打开页面后，看侧边栏最底部，有一个 **"登录网易云"** 按钮。点一下会弹出一个二维码，用手机上的网易云音乐 App 扫一下就登录了。
+
+登录之后你就能：
+- 播放 VIP 歌曲（前提是你网易云账号有 VIP）
+- 看到个性推荐、私人 FM、每日推荐这些需要登录才能用的功能
+- Cookie 会自动刷新，不用担心过几天又失效
+
+以前需要手动去浏览器里复制 Cookie 的方式也还支持，但扫码登录方便太多了。
+
+---
+
+## 怎么用
+
+### 听歌
+
+最直接的方式是在左侧的推荐页面找歌，或者用搜索框搜歌名。搜到的歌点一下就开始播放。
+
+你也可以在网易云上找到喜欢的歌单，复制歌单 ID（分享链接里的那串数字），点左侧的"导入歌单"按钮导入。导入后歌单里所有的歌都会出现在曲库中。
+
+### 和小芬聊天
+
+点开右下角的聊天面板，直接打字就行。不需要用什么特殊格式，就像和朋友发消息一样：
+
+- "我今天心情不太好"
+- "来首嗨一点的"
+- "有没有类似五月天风格的歌"
+- "帮我生成一个适合深夜学习的歌单"
+
+小芬会根据你说的内容、当前天气、时间和你的听歌偏好来回复。如果她推荐了歌曲，消息里会出现歌曲卡片，直接点击就能播放。
+
+### 开电台
+
+想偷懒不想一首首挑歌？点聊天区的"电台"按钮。
+
+小芬会自动帮你选好一批歌，然后像真正的电台 DJ 一样，在歌与歌之间用语音跟你聊几句。你只要坐在那里听就行了。
+
+### 悬浮窗模式
+
+工作的时候想听歌但不想被播放器占屏幕？点侧边栏右上角的图标，切换到悬浮窗模式。一个小小的迷你播放器会出现在屏幕上，显示封面、歌名和播放控制。你可以把它拖到屏幕任意角落。
+
+---
+
+## 常见问题
+
+**Q: 启动后搜索歌曲没反应？**
+A: 检查 NeteaseCloudMusicApi 有没有在运行。两个服务都要启动才行。终端 1 应该显示 "server running @ http://localhost:3000"。
+
+**Q: VIP 歌曲播放不了？**
+A: 用网易云音乐 App 扫码登录，确保你的网易云账号有 VIP。如果还是不行，可能是歌曲有地区版权限制。
+
+**Q: AI 不回复 / 回复报错？**
+A: 检查 `.env` 里的 `AI_API_KEY` 有没有填对，去 [DashScope 控制台](https://dashscope.console.aliyun.com/) 看看余额够不够。
+
+**Q: 天气信息不对？**
+A: 检查 `.env` 里的 `WEATHER_CITY` 填的是不是你的城市，用中文名，比如"北京"、"上海"。
+
+**Q: 电台模式没有语音？**
+A: 确保 `DASHSCOPE_API_KEY` 已配置。TTS 合成需要几秒钟，第一首歌的开场白可能会稍有延迟。
+
+---
 
 ## 项目结构
 
 ```
 fenaudio/
-├── server/
-│   ├── index.js          # Express 入口，注册路由，Cookie 定时刷新
-│   ├── config.js          # 环境变量加载
-│   ├── db/database.js     # SQLite schema + prepared statements
+├── server/                          # 后端
+│   ├── index.js                     # 入口，注册路由，启动 Cookie 定时刷新
+│   ├── config.js                    # 读取 .env 配置
+│   ├── db/
+│   │   └── database.js              # 数据库建表、预编译 SQL
 │   ├── routes/
-│   │   ├── auth.js        # 扫码登录、登录状态、Cookie 管理
-│   │   ├── music.js       # 搜索、播放、音频代理、历史、用户画像
-│   │   ├── chat.js        # AI 对话、TTS、电台模式、天气
-│   │   └── playlist.js    # 歌单导入与管理
+│   │   ├── auth.js                  # 扫码登录、登录状态查询
+│   │   ├── music.js                 # 搜索、歌曲详情、音频代理、播放历史、用户画像
+│   │   ├── chat.js                  # AI 对话、语音合成、电台模式、天气查询
+│   │   └── playlist.js              # 歌单导入和管理
 │   └── services/
-│       ├── ai.js          # DashScope/Qwen LLM，DJ 人设 prompt
-│       ├── netease.js     # NeteaseCloudMusicApi 客户端，动态 Cookie
-│       ├── tts.js         # CosyVoice TTS，LRU 缓存
-│       └── weather.js     # OpenWeather，天气→情绪映射
-├── public/
-│   ├── index.html         # 单页应用 HTML
+│       ├── ai.js                    # 通义千问大模型调用，DJ 人设 prompt
+│       ├── netease.js               # 网易云 API 客户端，Cookie 自动刷新
+│       ├── tts.js                   # CosyVoice 语音合成，结果缓存
+│       └── weather.js               # 天气查询，天气→心情映射
+├── public/                          # 前端
+│   ├── index.html                   # 页面结构
 │   ├── js/
-│   │   ├── app.js         # 主控制器：侧边栏、搜索、歌单、登录
-│   │   ├── player.js      # 播放器：播放/暂停/歌词/可视化/电台模式
-│   │   ├── chat.js        # 聊天 UI：AI 对话、语音、歌曲卡片
-│   │   └── particles.js   # Canvas 粒子背景
-│   └── css/style.css      # 全局样式
-├── NeteaseCloudMusicApiGitee/  # 网易云音乐 API 服务 (端口 3000)
-└── data/fenaudio.db            # SQLite 数据库
+│   │   ├── app.js                   # 主逻辑：侧边栏、搜索、歌单、登录弹窗
+│   │   ├── player.js                # 播放器：控制、歌词、可视化、电台模式
+│   │   ├── chat.js                  # 聊天：发消息、显示回复、语音播放
+│   │   └── particles.js             # 背景粒子动画
+│   └── css/
+│       └── style.css                # 所有样式
+├── NeteaseCloudMusicApiGitee/       # 网易云音乐 API（独立项目，端口 3000）
+├── data/                            # SQLite 数据库文件
+├── start.bat                        # Windows 一键启动
+├── stop.bat                         # Windows 停止服务
+├── restart.bat                      # Windows 重启服务
+├── .env.example                     # 环境变量模板
+└── package.json
 ```
 
-## API 端点
+## 技术栈
 
-| 路径 | 说明 |
+| 用途 | 技术 |
 |------|------|
-| `GET /api/music/search?keyword=` | 搜索歌曲 |
-| `GET /api/music/song/:id` | 获取歌曲详情和播放地址 |
-| `GET /api/music/recommend` | 推荐歌单 |
-| `GET /api/music/fm` | 私人 FM |
-| `GET /api/music/recommend/songs` | 每日推荐 |
-| `POST /api/chat/send` | AI 对话 |
-| `POST /api/chat/tts` | 文字转语音 |
-| `POST /api/chat/radio/start` | 启动电台模式 |
-| `POST /api/chat/radio/comment` | 生成 DJ 串场词 |
-| `POST /api/playlist/import/:id` | 导入网易云歌单 |
-| `GET /api/auth/qr/key` | 获取扫码登录 key |
-| `GET /api/auth/qr/check` | 检查扫码状态 |
-| `GET /api/auth/status` | 当前登录状态 |
-
-## 注意事项
-
-- AI 对话和 TTS 会消耗 DashScope API 额度，请在阿里云控制台关注用量
-- `start.bat` 会同时启动 NeteaseCloudMusicApi (端口 3000) 和 fenaudio (端口 3200)，两个服务缺一不可
-- 数据库文件在 `data/` 目录下，已在 `.gitignore` 中排除
+| 前端页面 | 原生 JavaScript、CSS3、HTML5 |
+| 可视化 | Canvas API（粒子效果、音频频谱） |
+| 后端服务 | Node.js + Express |
+| 数据存储 | SQLite（better-sqlite3，WAL 模式） |
+| AI 对话 | 阿里云 DashScope / 通义千问 |
+| 语音合成 | 阿里云 CosyVoice |
+| 天气数据 | OpenWeatherMap |
+| 音乐数据 | NeteaseCloudMusicApi |
 
 ## License
 
